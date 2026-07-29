@@ -16,15 +16,15 @@ Moneda* Portofoliu::gasesteMoneda(std::string simbol) {
     return nullptr;
 }
 
-bool Portofoliu::cumpara(std::string simbol, int cantitate) {
+RezultatCumparare Portofoliu::cumpara(std::string simbol, int cantitate) {
     Moneda* m = gasesteMoneda(simbol);
     if (m == nullptr) {
-        return false;
+        return RezultatCumparare::MONEDA_INEXISTENTA;
     }
 
     float cost = m->getPret() * cantitate;
     if (cost > sold) {
-        return false;
+        return RezultatCumparare::FONDURI_INSUFICIENTE;
     }
 
     sold -= cost;
@@ -37,17 +37,17 @@ bool Portofoliu::cumpara(std::string simbol, int cantitate) {
     t.pretUnitar = m->getPret();
     tranzactii.push_back(t);
 
-    return true;
+    return RezultatCumparare::SUCCES;
 }
 
-bool Portofoliu::vinde(std::string simbol, int cantitate) {
+RezultatVanzare Portofoliu::vinde(std::string simbol, int cantitate) {
     Moneda* m = gasesteMoneda(simbol);
     if (m == nullptr) {
-        return false;
+        return RezultatVanzare::MONEDA_INEXISTENTA;
     }
 
     if (!m->scadeCantitate(cantitate)) {
-        return false;
+        return RezultatVanzare::CANTITATE_INSUFICIENTA;
     }
 
     float profit = m->getPret() * cantitate;
@@ -60,7 +60,7 @@ bool Portofoliu::vinde(std::string simbol, int cantitate) {
     t.pretUnitar = m->getPret();
     tranzactii.push_back(t);
 
-    return true;
+    return RezultatVanzare::SUCCES;
 }
 
 float Portofoliu::calculeazaProfit() const {
@@ -85,4 +85,14 @@ const std::vector<Tranzactie>& Portofoliu::getIstoric() const {
 
 void Portofoliu::adaugaMoneda(Moneda moneda) {
     monede.push_back(moneda);
+}
+
+void Portofoliu::actualizeazaPiata() {
+    for (Moneda& m : monede) {
+        m.actualizeazaPret();
+    }
+}
+
+float Portofoliu::getSoldInitial() const {
+    return soldInitial;
 }

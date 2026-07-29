@@ -6,19 +6,33 @@
 #include "moneda.h"
 #include "tranzactie.h"
 
+enum class RezultatCumparare {
+    SUCCES,
+    MONEDA_INEXISTENTA,
+    FONDURI_INSUFICIENTE
+};
+
+enum class RezultatVanzare {
+    SUCCES,
+    MONEDA_INEXISTENTA,
+    CANTITATE_INSUFICIENTA
+};
+
 class Portofoliu {
     public:
         Portofoliu(float soldInitial);
 
-        bool cumpara(std::string simbol, int cantitate);
-        bool vinde(std::string simbol, int cantitate);
+        RezultatCumparare cumpara(std::string simbol, int cantitate);
+        RezultatVanzare vinde(std::string simbol, int cantitate);
         float calculeazaProfit() const;
 
         float getSold() const;
+        float getSoldInitial() const;
         const std::vector<Moneda>& getMonede() const;
         const std::vector<Tranzactie>& getIstoric() const;
 
         void adaugaMoneda(Moneda moneda);
+        void actualizeazaPiata();
 
     private:
         float sold;
