@@ -96,3 +96,7 @@ void Portofoliu::actualizeazaPiata() {
 float Portofoliu::getSoldInitial() const {
     return soldInitial;
 }
+
+void Portofoliu::setSold(float sold) {
+    this->sold = sold;
+}

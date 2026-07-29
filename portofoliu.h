@@ -33,6 +33,7 @@ class Portofoliu {
 
         void adaugaMoneda(Moneda moneda);
         void actualizeazaPiata();
+        void setSold(float sold);
 
     private:
         float sold;

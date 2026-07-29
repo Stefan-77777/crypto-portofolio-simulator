@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <sstream>
 #include "moneda.h"
 #include "portofoliu.h"
 
@@ -15,6 +16,41 @@ int main() {
     portofoliu.adaugaMoneda(Moneda("Litecoin", "LTC", 98.65f));
     portofoliu.adaugaMoneda(Moneda("Ripple", "XRP", 0.612f));
     portofoliu.adaugaMoneda(Moneda("Cardano", "ADA", 0.482f));
+
+    std::ifstream fisierPortofoliu("portofoliu.txt");
+
+    if (fisierPortofoliu.is_open()) {
+        float soldSalvat, soldInitialSalvat;
+        fisierPortofoliu >> soldSalvat;
+        fisierPortofoliu >> soldInitialSalvat;
+        fisierPortofoliu.ignore(); // sare peste \n ramas dupa citirea numerelor
+
+        portofoliu = Portofoliu(soldInitialSalvat);
+        portofoliu.setSold(soldSalvat);
+
+        std::string linie;
+        while (std::getline(fisierPortofoliu, linie)) {
+            std::stringstream ss(linie);
+            std::string nume, simbol, pretStr, cantitateStr;
+            std::getline(ss, nume, '|');
+            std::getline(ss, simbol, '|');
+            std::getline(ss, pretStr, '|');
+            std::getline(ss, cantitateStr, '|');
+
+            Moneda m(nume, simbol, std::stof(pretStr));
+            m.adaugaCantitate(std::stoi(cantitateStr));
+            portofoliu.adaugaMoneda(m);
+        }
+        fisierPortofoliu.close();
+        std::cout << "Progres incarcat cu succes!\n";
+    } else {
+        std::cout << "Nu s-a gasit progres salvat, se porneste cu valori implicite.\n";
+        portofoliu.adaugaMoneda(Moneda("Bitcoin", "BTC", 65432.15f));
+        portofoliu.adaugaMoneda(Moneda("Ethereum", "ETH", 3245.80f));
+        portofoliu.adaugaMoneda(Moneda("Litecoin", "LTC", 98.65f));
+        portofoliu.adaugaMoneda(Moneda("Ripple", "XRP", 0.612f));
+        portofoliu.adaugaMoneda(Moneda("Cardano", "ADA", 0.482f));
+    }
 
     int optiune;
     do {
@@ -79,6 +115,7 @@ int main() {
             case 3: {
                 std::cout << "\n== Stare curenta ==\n";
                 std::cout << "Sold: " << portofoliu.getSold() << std::endl;
+                std::cout << "Profit: " << portofoliu.calculeazaProfit() << std::endl;
                 std::cout << "Monede detinute\n";
                 
                 const std::vector<Moneda>& monede = portofoliu.getMonede();
@@ -110,7 +147,8 @@ int main() {
 
                 const std::vector<Moneda>& monede = portofoliu.getMonede();
                 for (int i = 0; i < monede.size(); i++) {
-                    fisierPortofoliu << monede[i].getSimbol() << "|"
+                    fisierPortofoliu << monede[i].getNume() << "|"
+                                     << monede[i].getSimbol() << "|"
                                      << monede[i].getPret() << "|"
                                      << monede[i].getCantitate() << "\n";
                 }
