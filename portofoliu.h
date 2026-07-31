@@ -32,6 +32,7 @@ class Portofoliu {
         const std::vector<Tranzactie>& getIstoric() const;
 
         void adaugaMoneda(Moneda moneda);
+        void adaugaTranzactie(Tranzactie t);
         void actualizeazaPiata();
         void setSold(float sold);
 

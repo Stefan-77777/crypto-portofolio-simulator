@@ -3,6 +3,7 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include "moneda.h"
 #include "portofoliu.h"
 
@@ -10,12 +11,6 @@ int main() {
     srand(time(0));
 
     Portofoliu portofoliu(10000.0f);
-
-    portofoliu.adaugaMoneda(Moneda("Bitcoin", "BTC", 65432.15f));
-    portofoliu.adaugaMoneda(Moneda("Ethereum", "ETH", 3245.80f));
-    portofoliu.adaugaMoneda(Moneda("Litecoin", "LTC", 98.65f));
-    portofoliu.adaugaMoneda(Moneda("Ripple", "XRP", 0.612f));
-    portofoliu.adaugaMoneda(Moneda("Cardano", "ADA", 0.482f));
 
     std::ifstream fisierPortofoliu("portofoliu.txt");
 
@@ -42,6 +37,31 @@ int main() {
             portofoliu.adaugaMoneda(m);
         }
         fisierPortofoliu.close();
+
+        std::ifstream fisierIstoric("istoric.txt");
+        if (fisierIstoric.is_open()) {
+            std::string linieIstoric;
+            while (std::getline(fisierIstoric, linieIstoric)) {
+                std::stringstream ss(linieIstoric);
+                std::string tipStr, simbol, pretStr, cantitateStr, timpStr;
+                std::getline(ss, tipStr, '|');
+                std::getline(ss, simbol, '|');
+                std::getline(ss, pretStr, '|');
+                std::getline(ss, cantitateStr, '|');
+                std::getline(ss, timpStr, '|');
+
+                Tranzactie t;
+                t.tip = static_cast<TipTranzactie>(std::stoi(tipStr));
+                t.simbol = simbol;
+                t.pretUnitar = std::stof(pretStr);
+                t.cantitate = std::stoi(cantitateStr);
+                t.timp = std::stoll(timpStr);
+
+                portofoliu.adaugaTranzactie(t);
+            }
+            fisierIstoric.close();
+        }
+
         std::cout << "Progres incarcat cu succes!\n";
     } else {
         std::cout << "Nu s-a gasit progres salvat, se porneste cu valori implicite.\n";
@@ -61,7 +81,8 @@ int main() {
         std::cout << "3. Portofoliu\n";
         std::cout << "4. Piata\n";
         std::cout << "5. Salveaza\n";
-        std::cout << "6. Iesire\n";
+        std::cout << "6. Istoric\n";
+        std::cout << "0. Iesire\n";
         std::cout << "Alege o optiune: ";
         std::cin >> optiune;
 
@@ -161,20 +182,59 @@ int main() {
                     fisierIstoric << tipNumeric << "|"
                                   << tranzactii[i].simbol << "|"
                                   << tranzactii[i].pretUnitar << "|"
-                                  << tranzactii[i].cantitate << "\n";
+                                  << tranzactii[i].cantitate << "|"
+                                  << tranzactii[i].timp << "\n";
                 }
                 fisierIstoric.close();
 
                 std::cout << "Portofoliu salvat cu succes!\n";
                 break;
             }
-            case 6:
+            case 6: {
+                int optiune;
+                do {
+                    std::cout << "\n== Istoric tranzactii ==\n";
+                    std::cout << "1. Crescator (cele mai vechi primele)\n";
+                    std::cout << "2. Descrescator (cele mai recente primele)\n";
+                    std::cout << "0. Inapoi\n";
+                    std::cout << "Alege o optiune: ";
+                    std::cin >> optiune;
+
+                    if (optiune == 1 || optiune == 2) {
+                        std::vector<Tranzactie> istoricSortat = portofoliu.getIstoric();
+
+                        if (optiune == 1) {
+                            std::sort(istoricSortat.begin(), istoricSortat.end(),
+                                [](const Tranzactie& a, const Tranzactie& b) {
+                                    return a.timp < b.timp;
+                                });
+                        } else {
+                            std::sort(istoricSortat.begin(), istoricSortat.end(),
+                                [](const Tranzactie& a, const Tranzactie& b) {
+                                    return a.timp > b.timp;
+                                });
+                        }
+
+                        for (int i = 0; i < istoricSortat.size(); i++) {
+                            std::string tipText = (istoricSortat[i].tip == TipTranzactie::CUMPARARE) ? "CUMPARARE" : "VANZARE";
+                            std::cout << "\n----------------\n";
+                            std::cout << "Tip: " << tipText << "\n";
+                            std::cout << "Simbol: " << istoricSortat[i].simbol << "\n";
+                            std::cout << "Cantitate: " << istoricSortat[i].cantitate << "\n";
+                            std::cout << "Pret: " << istoricSortat[i].pretUnitar << "\n";
+                            std::cout << "Data: " << std::ctime(&istoricSortat[i].timp);
+                        }
+                    }
+                } while (optiune != 0);
+                break;
+            }
+            case 0:
                 std::cout << "La revedere!\n";
                 break;
             default:
                 std::cout << "Optiune invalida.\n";
         }
-    } while (optiune != 6);
+    } while (optiune != 0);
 
     return 0;
 }

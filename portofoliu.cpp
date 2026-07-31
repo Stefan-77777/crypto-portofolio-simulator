@@ -35,8 +35,9 @@ RezultatCumparare Portofoliu::cumpara(std::string simbol, int cantitate) {
     t.cantitate = cantitate;
     t.simbol = simbol;
     t.pretUnitar = m->getPret();
+    t.timp = time(0);
     tranzactii.push_back(t);
-
+    
     return RezultatCumparare::SUCCES;
 }
 
@@ -58,8 +59,9 @@ RezultatVanzare Portofoliu::vinde(std::string simbol, int cantitate) {
     t.cantitate = cantitate;
     t.simbol = simbol;
     t.pretUnitar = m->getPret();
+    t.timp = time(0);
     tranzactii.push_back(t);
-
+    
     return RezultatVanzare::SUCCES;
 }
 
@@ -81,6 +83,10 @@ const std::vector<Moneda>& Portofoliu::getMonede() const {
 
 const std::vector<Tranzactie>& Portofoliu::getIstoric() const {
     return tranzactii;
+}
+
+void Portofoliu::adaugaTranzactie(Tranzactie t) {
+    tranzactii.push_back(t);
 }
 
 void Portofoliu::adaugaMoneda(Moneda moneda) {
