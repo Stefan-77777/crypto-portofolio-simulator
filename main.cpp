@@ -7,6 +7,16 @@
 #include "moneda.h"
 #include "portofoliu.h"
 
+int citesteIntreg() {
+    int valoare;
+    while (!(std::cin >> valoare)) {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Input invalid, introdu o valoare intreaga: ";
+    }
+    return valoare;
+}
+
 int main() {
     srand(time(0));
 
@@ -84,7 +94,7 @@ int main() {
         std::cout << "6. Istoric\n";
         std::cout << "0. Iesire\n";
         std::cout << "Alege o optiune: ";
-        std::cin >> optiune;
+        optiune = citesteIntreg();
 
         switch (optiune) {
             case 1: {
@@ -94,7 +104,12 @@ int main() {
                 std::cout << "Simbol moneda: ";
                 std::cin >> simbol;
                 std::cout << "Cantitate: ";
-                std::cin >> cantitate;
+                cantitate = citesteIntreg();
+
+                while (cantitate <= 0) {
+                    std::cout << "Cantitatea trebuie sa fie un numar pozitiv. Incercati din nou: ";
+                    cantitate = citesteIntreg();
+                }
 
                 RezultatCumparare rezultat = portofoliu.cumpara(simbol, cantitate);
                 switch (rezultat) {
@@ -117,7 +132,12 @@ int main() {
                 std::cout << "Simbol moneda: ";
                 std::cin >> simbol;
                 std::cout << "Cantitate: ";
-                std::cin >> cantitate;
+                cantitate = citesteIntreg();
+
+                while (cantitate <= 0) {
+                    std::cout << "Cantitatea trebuie sa fie un numar pozitiv. Incercati din nou: ";
+                    cantitate = citesteIntreg();
+                }
 
                 RezultatVanzare rezultat = portofoliu.vinde(simbol, cantitate);
                 switch (rezultat) {
@@ -198,7 +218,7 @@ int main() {
                     std::cout << "2. Descrescator (cele mai recente primele)\n";
                     std::cout << "0. Inapoi\n";
                     std::cout << "Alege o optiune: ";
-                    std::cin >> optiune;
+                    optiune = citesteIntreg();
 
                     if (optiune == 1 || optiune == 2) {
                         std::vector<Tranzactie> istoricSortat = portofoliu.getIstoric();
