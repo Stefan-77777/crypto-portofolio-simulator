@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <limits>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -18,9 +20,12 @@ int citesteIntreg() {
 }
 
 int main() {
+    std::cout << std::fixed << std::setprecision(2);
+
     srand(time(0));
 
     Portofoliu portofoliu(10000.0f);
+    bool modificariNesalvate = false;
 
     std::ifstream fisierPortofoliu("portofoliu.txt");
 
@@ -115,6 +120,7 @@ int main() {
                 switch (rezultat) {
                     case RezultatCumparare::SUCCES:
                         std::cout << "Cumparare reusita!\n";
+                        modificariNesalvate = true;
                         break;
                     case RezultatCumparare::FONDURI_INSUFICIENTE:
                         std::cout << "Fonduri insuficiente!\n";
@@ -143,6 +149,7 @@ int main() {
                 switch (rezultat) {
                     case RezultatVanzare::SUCCES:
                         std::cout << "Vanzare reusita!\n";
+                        modificariNesalvate = true;
                         break;
                     case RezultatVanzare::CANTITATE_INSUFICIENTA:
                         std::cout << "Cantitate insuficienta!\n";
@@ -208,6 +215,7 @@ int main() {
                 fisierIstoric.close();
 
                 std::cout << "Portofoliu salvat cu succes!\n";
+                modificariNesalvate = false;
                 break;
             }
             case 6: {
@@ -248,9 +256,22 @@ int main() {
                 } while (optiune != 0);
                 break;
             }
-            case 0:
-                std::cout << "La revedere!\n";
+            case 0: {
+                if (modificariNesalvate) {
+                    std::cout << "Exista modificari nesalvate. Sigur doriti sa iesiti? (y/n): ";
+                    std::string raspuns;
+                    std::cin >> raspuns;
+                    if (raspuns == "y") {
+                        std::cout << "La revedere!\n";
+                        break;
+                    } else {
+                        optiune = -1;
+                    }
+                } else {
+                    std::cout << "La revedere!\n";
+                }
                 break;
+            }
             default:
                 std::cout << "Optiune invalida.\n";
         }
